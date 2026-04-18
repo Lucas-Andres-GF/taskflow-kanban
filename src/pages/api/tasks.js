@@ -5,7 +5,7 @@
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
-const supabaseKey = import.meta.env.SUPABASE_SERVICE_ROLE_KEY || import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+const supabaseKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
@@ -21,7 +21,8 @@ export async function GET({ url }) {
       .order('created_at', { ascending: false })
       .limit(parseInt(limit));
 
-    if (status && status !== 'all' && status !== 'done') {
+    // Only filter if status is specifically 'todo' or 'in_progress'
+    if (status === 'todo' || status === 'in_progress') {
       query = query.eq('status', status);
     }
 
