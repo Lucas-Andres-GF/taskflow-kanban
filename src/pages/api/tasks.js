@@ -46,7 +46,9 @@ export async function GET({ url }) {
       status: 200,
       headers: { 
         'Content-Type': 'application/json',
-        'Content-Disposition': 'inline'
+        'Content-Disposition': 'inline',
+        'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+        'Pragma': 'no-cache'
       }
     });
 
@@ -55,7 +57,8 @@ export async function GET({ url }) {
       status: 500,
       headers: { 
         'Content-Type': 'application/json',
-        'Content-Disposition': 'inline'
+        'Content-Disposition': 'inline',
+        'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0'
       }
     });
   }
