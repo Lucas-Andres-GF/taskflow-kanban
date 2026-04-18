@@ -9,8 +9,8 @@ const supabaseAnonKey = typeof window !== 'undefined'
   ? (import.meta.env.PUBLIC_SUPABASE_ANON_KEY || 'your-anon-key')
   : 'your-anon-key';
 
-// Create fresh client each time to avoid cache
-const getSupabase = () => createClient(supabaseUrl, supabaseAnonKey);
+// Create client (module level for reuse)
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 // Status columns configuration
 const COLUMNS = [
