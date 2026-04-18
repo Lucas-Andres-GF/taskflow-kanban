@@ -9,7 +9,8 @@ const supabaseAnonKey = typeof window !== 'undefined'
   ? (import.meta.env.PUBLIC_SUPABASE_ANON_KEY || 'your-anon-key')
   : 'your-anon-key';
 
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Create fresh client each time to avoid cache
+const getSupabase = () => createClient(supabaseUrl, supabaseAnonKey);
 
 // Status columns configuration
 const COLUMNS = [
@@ -173,7 +174,7 @@ function Column({ column, tasks, onStatusChange, onDelete, onDragOver, onDrop })
 }
 
 // Main Kanban Board component
-export default function KanbanBoard({ initialTasks = [] }) {
+export default function KanbanBoard({ initialTasks = [], onTaskCountChange }) {
   const [tasks, setTasks] = useState(initialTasks);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -196,6 +197,8 @@ export default function KanbanBoard({ initialTasks = [] }) {
 
       if (error) throw error;
       setTasks(data || []);
+      // Update count in parent
+      if (onTaskCountChange) onTaskCountChange((data || []).length);
     } catch (err) {
       console.error('Error fetching tasks:', err);
       setError(err.message);

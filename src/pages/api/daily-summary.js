@@ -12,6 +12,9 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 /** @type {import('./$types').RequestHandler} */
 export async function GET() {
   try {
+    // Force fresh data
+    const nocache = Date.now();
+    
     const today = new Date().toISOString().split('T')[0];
     const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
 

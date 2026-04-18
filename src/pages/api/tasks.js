@@ -14,6 +14,8 @@ export async function GET({ url }) {
   try {
     const status = url.searchParams.get('status');
     const limit = url.searchParams.get('limit') || '50';
+    // Force fresh data
+    const nocache = Date.now();
 
     let query = supabase
       .from('tasks')
