@@ -2,35 +2,35 @@
 // GET - Obtener tareas (con filtros)
 // POST - Crear tarea
 
-import { createClient } from '@supabase/supabase-js';
-
 const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
 const supabaseKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
-
-const supabase = createClient(supabaseUrl, supabaseKey);
 
 /** @type {import('./$types').RequestHandler} */
 export async function GET({ url }) {
   try {
     const status = url.searchParams.get('status');
     const limit = url.searchParams.get('limit') || '50';
-    // Force fresh data
-    const nocache = Date.now();
 
-    let query = supabase
-      .from('tasks')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(parseInt(limit));
-
-    // Only filter if status is specifically 'todo' or 'in_progress'
+    // Direct fetch to Supabase REST API - bypasses JS client cache
+    let fetchUrl = `${supabaseUrl}/rest/v1/tasks?select=*&order=created_at.desc&limit=${limit}`;
+    
     if (status === 'todo' || status === 'in_progress') {
-      query = query.eq('status', status);
+      fetchUrl += `&status=eq.${status}`;
     }
 
-    const { data: tasks, error } = await query;
+    const response = await fetch(fetchUrl, {
+      headers: {
+        'apikey': supabaseKey,
+        'Authorization': `Bearer ${supabaseKey}`,
+        'Content-Type': 'application/json'
+      }
+    });
 
-    if (error) throw error;
+    if (!response.ok) {
+      throw new Error('Supabase fetch failed');
+    }
+
+    const tasks = await response.json();
 
     const formatted = {
       total: tasks?.length || 0,
@@ -92,28 +92,39 @@ export async function POST({ request }) {
       due_date: body.vence || body.due_date || null,
     };
 
-    const { data, error } = await supabase
-      .from('tasks')
-      .insert([task])
-      .select()
-      .single();
+    // Direct fetch POST to Supabase
+    const response = await fetch(`${supabaseUrl}/rest/v1/tasks`, {
+      method: 'POST',
+      headers: {
+        'apikey': supabaseKey,
+        'Authorization': `Bearer ${supabaseKey}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation'
+      },
+      body: JSON.stringify([task])
+    });
 
-    if (error) throw error;
+    if (!response.ok) {
+      throw new Error('Supabase insert failed');
+    }
+
+    const data = await response.json();
 
     return new Response(JSON.stringify({
       success: true,
       message: 'Tarea creada',
       tarea: {
-        id: data.id,
-        titulo: data.title,
-        prioridad: data.priority,
-        estado: data.status
+        id: data[0]?.id,
+        titulo: data[0]?.title,
+        prioridad: data[0]?.priority,
+        estado: data[0]?.status
       }
     }), {
       status: 201,
       headers: { 
         'Content-Type': 'application/json',
-        'Content-Disposition': 'inline'
+        'Content-Disposition': 'inline',
+        'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0'
       }
     });
 
@@ -125,7 +136,8 @@ export async function POST({ request }) {
       status: 500,
       headers: { 
         'Content-Type': 'application/json',
-        'Content-Disposition': 'inline'
+        'Content-Disposition': 'inline',
+        'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0'
       }
     });
   }

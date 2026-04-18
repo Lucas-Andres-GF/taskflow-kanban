@@ -1,32 +1,31 @@
 // API Endpoint: GET /api/daily-summary
 // Resumen diario para el bot de WhatsApp
-// Devuelve: tareas pendientes, urgentes, y recomendaciones
-
-import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
 const supabaseKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
 
-const supabase = createClient(supabaseUrl, supabaseKey);
-
 /** @type {import('./$types').RequestHandler} */
 export async function GET() {
   try {
-    // Force fresh data
-    const nocache = Date.now();
-    
     const today = new Date().toISOString().split('T')[0];
     const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
 
-    // Obtener todas las tareas no terminadas
-    const { data: tasks, error } = await supabase
-      .from('tasks')
-      .select('*')
-      .neq('status', 'done')
-      .order('priority', { ascending: false })
-      .order('due_date', { ascending: true });
+    // Direct fetch to Supabase - bypasses any caching
+    const fetchUrl = `${supabaseUrl}/rest/v1/tasks?status=neq.done&select=*&order=priority.desc,due_date.asc`;
+    
+    const response = await fetch(fetchUrl, {
+      headers: {
+        'apikey': supabaseKey,
+        'Authorization': `Bearer ${supabaseKey}`,
+        'Content-Type': 'application/json'
+      }
+    });
 
-    if (error) throw error;
+    if (!response.ok) {
+      throw new Error('Supabase fetch failed');
+    }
+
+    const tasks = await response.json();
 
     // Clasificar tareas
     const pendientes = tasks?.filter(t => t.status === 'todo') || [];
@@ -46,8 +45,7 @@ export async function GET() {
       return daysUntil <= 3;
     }) || [];
 
-    // Formateo para WhatsApp
-    const response = {
+    const responseFormatted = {
       fecha: today,
       resumen: {
         pendientes: pendientes.length,
@@ -64,7 +62,6 @@ export async function GET() {
         prioridad: t.priority,
         vence_en: formatVence(t.due_date, today)
       })),
-      // Recomendacion: la mas importante
       recomendada: urgentes.length > 0 ? {
         titulo: urgentes[0].title,
         razon: urgentes[0].priority === 'high' ? 'alta prioridad' : 'vence pronto'
@@ -74,7 +71,7 @@ export async function GET() {
       } : null
     };
 
-    return new Response(JSON.stringify(response), {
+    return new Response(JSON.stringify(responseFormatted), {
       status: 200,
       headers: { 
         'Content-Type': 'application/json',
