@@ -174,7 +174,7 @@ function Column({ column, tasks, onStatusChange, onDelete, onDragOver, onDrop })
 }
 
 // Main Kanban Board component
-export default function KanbanBoard({ initialTasks = [], onTaskCountChange }) {
+export default function KanbanBoard({ initialTasks = [] }) {
   const [tasks, setTasks] = useState(initialTasks);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -182,9 +182,6 @@ export default function KanbanBoard({ initialTasks = [], onTaskCountChange }) {
   // Fetch tasks on mount
   useEffect(() => {
     fetchTasks();
-    // Refresh every 30 seconds
-    const interval = setInterval(fetchTasks, 30000);
-    return () => clearInterval(interval);
   }, []);
 
   const fetchTasks = async () => {
@@ -197,8 +194,7 @@ export default function KanbanBoard({ initialTasks = [], onTaskCountChange }) {
 
       if (error) throw error;
       setTasks(data || []);
-      // Update count in parent
-      if (onTaskCountChange) onTaskCountChange((data || []).length);
+      
     } catch (err) {
       console.error('Error fetching tasks:', err);
       setError(err.message);

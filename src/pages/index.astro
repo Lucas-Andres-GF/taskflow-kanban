@@ -24,7 +24,7 @@ try {
     <div class="flex items-center justify-between">
       <div>
         <h2 class="text-xl text-gray-300">Tablero Kanban</h2>
-        <p id="taskCount" class="text-sm text-gray-500 mt-1">
+        <p class="text-sm text-gray-500 mt-1">
           {error 
             ? 'Cargando...' 
             : `${initialTasks.length} tareas totales`}
@@ -45,9 +45,7 @@ try {
 
     <!-- Kanban Board (React Island) -->
     <!-- client:load ensures the component hydrates immediately on the client -->
-    <KanbanBoard client:load initialTasks={initialTasks} onTaskCountChange={(count) => {
-      document.getElementById('taskCount').textContent = count + ' tareas totales';
-    }} />
+    <KanbanBoard client:load initialTasks={initialTasks} />
   </div>
 
   <!-- Client-side script for modal and refresh -->
