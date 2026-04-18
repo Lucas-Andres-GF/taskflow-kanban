@@ -89,7 +89,7 @@ function TaskCard({ task, onStatusChange, onDelete }) {
       draggable
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
-      className={`kanban-card cursor-move ${isDragging ? 'opacity-50 scale-95' : ''} group`}
+      className={`kanban-card cursor-move select-none ${isDragging ? 'opacity-50 scale-95' : ''} group`}
     >
       <div className="flex items-start justify-between gap-2 mb-2">
         <h3 className="font-semibold text-white text-sm leading-tight">{task.title}</h3>
