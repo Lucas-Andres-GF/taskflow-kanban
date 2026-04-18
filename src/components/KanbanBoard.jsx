@@ -181,6 +181,9 @@ export default function KanbanBoard({ initialTasks = [] }) {
   // Fetch tasks on mount
   useEffect(() => {
     fetchTasks();
+    // Refresh every 30 seconds
+    const interval = setInterval(fetchTasks, 30000);
+    return () => clearInterval(interval);
   }, []);
 
   const fetchTasks = async () => {
@@ -189,7 +192,7 @@ export default function KanbanBoard({ initialTasks = [] }) {
       const { data, error } = await supabase
         .from('tasks')
         .select('*')
-        .order('created_at', { ascending: true });
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
       setTasks(data || []);

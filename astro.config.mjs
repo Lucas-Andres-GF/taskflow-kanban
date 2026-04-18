@@ -7,10 +7,9 @@ export default defineConfig({
   integrations: [
     react(),
     tailwind({
-      applyBaseStyles: false, // We'll use custom base styles
+      applyBaseStyles: false,
     }),
   ],
-  // Configure prefetch for faster navigation
   prefetch: {
     defaultStrategy: 'viewport',
   },
