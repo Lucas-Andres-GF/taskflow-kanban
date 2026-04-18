@@ -148,7 +148,7 @@ function Column({ column, tasks, onStatusChange, onDelete, onDragOver, onDrop })
     >
       <div className={`column-header flex items-center justify-between ${column.color}`}>
         <span>{column.title}</span>
-        <span className="text-sm font-normal text-gray-500 bg-dark-card px-2 py-0.5 rounded-full">
+        <span className="text-sm font-normal text-gray-500 bg-gray-700 px-2 py-0.5 rounded-full">
           {tasks.length}
         </span>
       </div>
@@ -290,7 +290,7 @@ export default function KanbanBoard({ initialTasks = [] }) {
   }
 
   return (
-    <div className="flex flex-col md:flex-row gap-4 md:gap-6 overflow-x-auto md:overflow-x-visible pb-4">
+    <div className="flex flex-col md:flex-row gap-4 md:gap-6 overflow-visible pb-4">
       {COLUMNS.map((column) => (
         <Column
           key={column.id}
