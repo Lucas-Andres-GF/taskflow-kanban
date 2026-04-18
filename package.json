@@ -21,6 +21,8 @@
   },
   "devDependencies": {
     "@types/react": "^19.0.8",
-    "@types/react-dom": "^19.0.3"
+    "@types/react-dom": "^19.0.3",
+    "jimp": "^1.6.1",
+    "sharp": "^0.34.5"
   }
 }
