@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-gray-900 text-gray-100 font-sans antialiased;
+  }
+}
+
+@layer components {
+  /* Custom card styles */
+  .kanban-card {
+    @apply bg-gray-800 rounded-xl p-4 border border-gray-700 
+           shadow-lg hover:shadow-xl transition-all duration-200;
+  }
+
+  /* Priority badges */
+  .priority-low {
+    @apply bg-emerald-500/20 text-emerald-400 border border-emerald-500/30;
+  }
+
+  .priority-medium {
+    @apply bg-yellow-500/20 text-yellow-400 border border-yellow-500/30;
+  }
+
+  .priority-high {
+    @apply bg-red-500/20 text-red-400 border border-red-500/30;
+  }
+
+  /* Column header styles */
+  .column-header {
+    @apply font-semibold text-lg mb-4 pb-2 border-b-2 border-gray-700;
+  }
+
+  /* Button styles */
+  .btn-mint {
+    @apply bg-emerald-500 hover:bg-emerald-600 text-white font-medium px-4 py-2 
+           rounded-lg transition-colors duration-200;
+  }
+}

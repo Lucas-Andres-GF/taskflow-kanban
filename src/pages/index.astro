@@ -1,0 +1,121 @@
+---
+import Layout from '../layouts/Layout.astro';
+import KanbanBoard from '../components/KanbanBoard.jsx';
+
+// Server-side: Fetch initial tasks to pass to the client component
+// This enables SSR with hydrated data
+let initialTasks = [];
+let error = null;
+
+try {
+  // Import the supabase client (server-side)
+  const { getTasks } = await import('../lib/supabase.js');
+  initialTasks = await getTasks();
+} catch (err) {
+  console.error('Error fetching initial tasks:', err);
+  // Don't fail the page, just pass empty array and let client fetch
+  error = err.message;
+}
+---
+
+<Layout title="TaskFlow - Kanban Board">
+  <div class="space-y-6">
+    <!-- Page Title -->
+    <div class="flex items-center justify-between">
+      <div>
+        <h2 class="text-xl text-gray-300">Tablero Kanban</h2>
+        <p class="text-sm text-gray-500 mt-1">
+          {error 
+            ? 'Error al cargar tareas iniciales. Cargando desde cliente...' 
+            : `${initialTasks.length} tareas totales`}
+        </p>
+      </div>
+      
+      <!-- Refresh button -->
+      <button
+        id="refreshBtn"
+        class="flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-600 hover:bg-gray-700 transition-colors text-gray-400 hover:text-white"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+        Actualizar
+      </button>
+    </div>
+
+    <!-- Kanban Board (React Island) -->
+    <!-- client:load ensures the component hydrates immediately on the client -->
+    <KanbanBoard client:load initialTasks={initialTasks} />
+  </div>
+
+  <!-- Client-side script for modal and refresh -->
+  <script>
+    // Modal handling
+    const modal = document.getElementById('addTaskModal');
+    const addBtn = document.getElementById('addTaskBtn');
+    const cancelBtn = document.getElementById('cancelAddTask');
+    const form = document.getElementById('addTaskForm');
+
+    // Show modal
+    addBtn?.addEventListener('click', () => {
+      modal.classList.remove('hidden');
+    });
+
+    // Hide modal
+    cancelBtn?.addEventListener('click', () => {
+      modal.classList.add('hidden');
+    });
+
+    // Close modal on backdrop click
+    modal?.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.classList.add('hidden');
+      }
+    });
+
+    // Handle form submission
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const formData = new FormData(form);
+      const taskData = {
+        title: formData.get('title'),
+        description: formData.get('description') || '',
+        priority: formData.get('priority'),
+        due_date: formData.get('due_date') || null,
+        status: 'todo',
+      };
+
+      try {
+        // Get Supabase client (client-side)
+        const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL || 'https://your-project.supabase.co';
+        const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY || 'your-anon-key';
+        const { createClient } = await import('@supabase/supabase-js');
+        const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+        const { data, error } = await supabase
+          .from('tasks')
+          .insert([taskData])
+          .select()
+          .single();
+
+        if (error) throw error;
+
+        // Close modal and reset form
+        modal.classList.add('hidden');
+        form.reset();
+
+        // Reload the page to refresh the board
+        window.location.reload();
+      } catch (err) {
+        console.error('Error creating task:', err);
+        alert('Error al crear la tarea: ' + err.message);
+      }
+    });
+
+    // Refresh button
+    document.getElementById('refreshBtn')?.addEventListener('click', () => {
+      window.location.reload();
+    });
+  </script>
+</Layout>
