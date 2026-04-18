@@ -31,12 +31,75 @@ import KanbanBoard from '../components/KanbanBoard.jsx';
   <script>
     // Listen for task count updates from React component
     window.addEventListener('taskCountUpdate', (e) => {
-      document.getElementById('taskCount').textContent = e.detail + ' tareas totales';
+      const countEl = document.getElementById('taskCount');
+      if (countEl) countEl.textContent = e.detail + ' tareas totales';
     });
     
     // Refresh button - reload page
     document.getElementById('refreshBtn')?.addEventListener('click', () => {
       window.location.reload();
+    });
+    
+    // Modal handling
+    const modal = document.getElementById('addTaskModal');
+    const addBtn = document.getElementById('addTaskBtn');
+    const cancelBtn = document.getElementById('cancelAddTask');
+    const form = document.getElementById('addTaskForm');
+
+    // Show modal
+    addBtn?.addEventListener('click', () => {
+      modal?.classList.remove('hidden');
+    });
+
+    // Hide modal
+    cancelBtn?.addEventListener('click', () => {
+      modal?.classList.add('hidden');
+    });
+
+    // Close modal on backdrop click
+    modal?.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.classList.add('hidden');
+      }
+    });
+
+    // Handle form submission
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const formData = new FormData(form);
+      const taskData = {
+        title: formData.get('title'),
+        description: formData.get('description') || '',
+        priority: formData.get('priority'),
+        due_date: formData.get('due_date') || null,
+        status: 'todo',
+      };
+
+      try {
+        const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL || 'https://kewviiaciikgmrpjbxbz.supabase.co';
+        const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY || 'sb_publishable_k4JE7WJIYsQyU7LJl_Li7Q_npyeaKcW';
+        const { createClient } = await import('@supabase/supabase-js');
+        const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+        const { data, error } = await supabase
+          .from('tasks')
+          .insert([taskData])
+          .select()
+          .single();
+
+        if (error) throw error;
+
+        // Close modal and reset form
+        modal?.classList.add('hidden');
+        form.reset();
+
+        // Reload to refresh
+        window.location.reload();
+      } catch (err) {
+        console.error('Error creating task:', err);
+        alert('Error al crear la tarea: ' + err.message);
+      }
     });
   </script>
 </Layout>
