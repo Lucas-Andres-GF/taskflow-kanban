@@ -175,11 +175,12 @@ function Column({ column, tasks, onStatusChange, onDelete, onDragOver, onDrop })
 
 // Main Kanban Board component
 export default function KanbanBoard({ initialTasks = [] }) {
-  const [tasks, setTasks] = useState(initialTasks);
+  // Start with empty and fetch from client
+  const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Fetch tasks on mount
+  // Fetch tasks on mount (once)
   useEffect(() => {
     fetchTasks();
   }, []);
@@ -194,6 +195,7 @@ export default function KanbanBoard({ initialTasks = [] }) {
 
       if (error) throw error;
       setTasks(data || []);
+      window.dispatchEvent(new CustomEvent('taskCountUpdate', { detail: data?.length || 0 }));
       
     } catch (err) {
       console.error('Error fetching tasks:', err);
