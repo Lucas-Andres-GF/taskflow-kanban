@@ -233,7 +233,11 @@ export default function KanbanBoard({ initialTasks = [] }) {
     if (!confirm('¿Estás seguro de eliminar esta tarea?')) return;
 
     // Optimistic update
-    setTasks((prev) => prev.filter((task) => task.id !== taskId));
+    const newTasks = tasks.filter((task) => task.id !== taskId);
+    setTasks(newTasks);
+    
+    // Update counter
+    window.dispatchEvent(new CustomEvent('taskCountUpdate', { detail: newTasks.length }));
 
     try {
       const { error } = await supabase
@@ -246,7 +250,7 @@ export default function KanbanBoard({ initialTasks = [] }) {
       console.error('Error deleting task:', err);
       fetchTasks();
     }
-  }, []);
+  }, [tasks]);
 
   // Drag and drop handlers
   const handleDragOver = (e) => {
