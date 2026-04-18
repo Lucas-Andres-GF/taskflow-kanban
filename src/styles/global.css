@@ -3,8 +3,15 @@
 @tailwind utilities;
 
 @layer base {
-  body {
+  html, body {
     @apply bg-gray-900 text-gray-100 font-sans antialiased;
+    overflow-x: hidden;
+    overscroll-behavior-x: contain;
+  }
+  
+  /* Enable momentum scrolling on iOS */
+  .overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
   }
 }
 

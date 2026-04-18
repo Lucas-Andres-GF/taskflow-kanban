@@ -142,7 +142,7 @@ function TaskCard({ task, onStatusChange, onDelete }) {
 function Column({ column, tasks, onStatusChange, onDelete, onDragOver, onDrop }) {
   return (
     <div
-      className="flex-1 min-w-[280px] max-w-[400px]"
+      className="w-full md:w-auto md:flex-1 md:min-w-[280px] md:max-w-[400px]"
       onDragOver={onDragOver}
       onDrop={(e) => onDrop(e, column.id)}
     >
@@ -153,7 +153,7 @@ function Column({ column, tasks, onStatusChange, onDelete, onDragOver, onDrop })
         </span>
       </div>
 
-      <div className="space-y-3 min-h-[200px] p-2 -m-2 rounded-lg">
+      <div className="space-y-3 min-h-[150px] md:min-h-[200px] p-2 -m-2 rounded-lg">
         {tasks.map((task) => (
           <TaskCard
             key={task.id}
@@ -290,7 +290,7 @@ export default function KanbanBoard({ initialTasks = [] }) {
   }
 
   return (
-    <div className="flex gap-6 overflow-x-auto pb-4">
+    <div className="flex flex-col md:flex-row gap-4 md:gap-6 overflow-x-auto md:overflow-x-visible pb-4">
       {COLUMNS.map((column) => (
         <Column
           key={column.id}
