@@ -1,5 +1,6 @@
-// API Endpoint: POST /api/tasks
-// Crear una nueva tarea
+// API Endpoint: /api/tasks
+// GET - Obtener tareas (con filtros)
+// POST - Crear tarea
 
 import { createClient } from '@supabase/supabase-js';
 
@@ -9,18 +10,71 @@ const supabaseKey = import.meta.env.SUPABASE_SERVICE_ROLE_KEY || import.meta.env
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 /** @type {import('./$types').RequestHandler} */
+export async function GET({ url }) {
+  try {
+    const status = url.searchParams.get('status');
+    const limit = url.searchParams.get('limit') || '50';
+
+    let query = supabase
+      .from('tasks')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(parseInt(limit));
+
+    if (status && status !== 'all' && status !== 'done') {
+      query = query.eq('status', status);
+    }
+
+    const { data: tasks, error } = await query;
+
+    if (error) throw error;
+
+    const formatted = {
+      total: tasks?.length || 0,
+      tareas: tasks?.map(t => ({
+        id: t.id,
+        titulo: t.title,
+        descripcion: t.description || '',
+        estado: t.status === 'todo' ? 'pendiente' : t.status === 'in_progress' ? 'en_progreso' : 'terminado',
+        prioridad: t.priority,
+        vence: t.due_date || null
+      })) || []
+    };
+
+    return new Response(JSON.stringify(formatted), {
+      status: 200,
+      headers: { 
+        'Content-Type': 'application/json',
+        'Content-Disposition': 'inline'
+      }
+    });
+
+  } catch (err) {
+    return new Response(JSON.stringify({ error: err.message }), {
+      status: 500,
+      headers: { 
+        'Content-Type': 'application/json',
+        'Content-Disposition': 'inline'
+      }
+    });
+  }
+}
+
+/** @type {import('./$types').RequestHandler} */
 export async function POST({ request }) {
   try {
     const body = await request.json();
     
-    // Validar título
     if (!body.titulo && !body.title) {
       return new Response(JSON.stringify({ 
         success: false, 
         error: 'El título es requerido' 
       }), {
         status: 400,
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 
+          'Content-Type': 'application/json',
+          'Content-Disposition': 'inline'
+        }
       });
     }
 
@@ -51,7 +105,10 @@ export async function POST({ request }) {
       }
     }), {
       status: 201,
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 
+        'Content-Type': 'application/json',
+        'Content-Disposition': 'inline'
+      }
     });
 
   } catch (err) {
@@ -60,7 +117,10 @@ export async function POST({ request }) {
       error: err.message 
     }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 
+        'Content-Type': 'application/json',
+        'Content-Disposition': 'inline'
+      }
     });
   }
 }

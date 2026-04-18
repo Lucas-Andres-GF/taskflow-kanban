@@ -75,6 +75,7 @@ export async function GET() {
       status: 200,
       headers: { 
         'Content-Type': 'application/json',
+        'Content-Disposition': 'inline',
         'Cache-Control': 'no-cache'
       }
     });
@@ -82,7 +83,10 @@ export async function GET() {
   } catch (err) {
     return new Response(JSON.stringify({ error: err.message }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 
+        'Content-Type': 'application/json',
+        'Content-Disposition': 'inline'
+      }
     });
   }
 }
