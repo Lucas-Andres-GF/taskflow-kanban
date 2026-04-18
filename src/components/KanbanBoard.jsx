@@ -74,6 +74,15 @@ function isOverdue(dateString) {
 function TaskCard({ task, onStatusChange, onDelete }) {
   const [isDragging, setIsDragging] = useState(false);
 
+  // Color según estado
+  const statusColors = {
+    todo: 'border-l-emerald-500',
+    in_progress: 'border-l-blue-500',
+    done: 'border-l-gray-500'
+  };
+  
+  const statusColor = statusColors[task.status] || statusColors.todo;
+
   const handleDragStart = (e) => {
     setIsDragging(true);
     e.dataTransfer.setData('taskId', task.id);
@@ -89,7 +98,7 @@ function TaskCard({ task, onStatusChange, onDelete }) {
       draggable
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
-      className={`kanban-card cursor-move select-none ${isDragging ? 'opacity-50 scale-95' : ''} group`}
+      className={`kanban-card cursor-move select-none border-l-4 ${statusColor} ${isDragging ? 'opacity-50 scale-95' : ''} group ${task.status === 'done' ? 'opacity-60' : ''}`}
     >
       <div className="flex items-start justify-between gap-2 mb-2">
         <h3 className="font-semibold text-white text-sm leading-tight">{task.title}</h3>
