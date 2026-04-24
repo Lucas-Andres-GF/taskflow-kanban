@@ -9,7 +9,7 @@ const supabaseKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
 export async function GET({ url }) {
   try {
     const status = url.searchParams.get('status');
-    const limit = url.searchParams.get('limit') || '50';
+    const limit = url.searchParams.get('limit') || '100';
 
     // Direct fetch to Supabase REST API - bypasses JS client cache
     let fetchUrl = `${supabaseUrl}/rest/v1/tasks?select=*&order=created_at.desc&limit=${limit}`;
@@ -17,6 +17,8 @@ export async function GET({ url }) {
     if (status === 'todo' || status === 'in_progress') {
       fetchUrl += `&status=eq.${status}`;
     }
+
+    console.log('[API /api/tasks] fetchUrl:', fetchUrl);
 
     const response = await fetch(fetchUrl, {
       headers: {
@@ -48,9 +50,9 @@ export async function GET({ url }) {
       status: 200,
       headers: { 
         'Content-Type': 'application/json',
-        'Content-Disposition': 'inline',
         'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
-        'Pragma': 'no-cache'
+        'Pragma': 'no-cache',
+        'Access-Control-Allow-Origin': '*'
       }
     });
 
@@ -59,7 +61,6 @@ export async function GET({ url }) {
       status: 500,
       headers: { 
         'Content-Type': 'application/json',
-        'Content-Disposition': 'inline',
         'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0'
       }
     });
@@ -123,7 +124,6 @@ export async function POST({ request }) {
       status: 201,
       headers: { 
         'Content-Type': 'application/json',
-        'Content-Disposition': 'inline',
         'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0'
       }
     });
