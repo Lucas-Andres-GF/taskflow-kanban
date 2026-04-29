@@ -1,11 +1,11 @@
 {
   "name": "TaskFlow - Kanban",
   "short_name": "TaskFlow",
-  "description": "Kanban Task Manager",
+  "description": "TaskFlow, tablero personal de tareas",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#111827",
-  "theme_color": "#10B981",
+  "background_color": "#F7F6F3",
+  "theme_color": "#F7F6F3",
   "icons": [
     {
       "src": "/icon-192.png",

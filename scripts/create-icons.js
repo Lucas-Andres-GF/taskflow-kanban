@@ -10,8 +10,8 @@ async function createIcons() {
 
   // SVG content
   const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-    <rect width="512" height="512" rx="96" fill="#10B981"/>
-    <path d="M128 256l85 85 171-171" stroke="white" stroke-width="48" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="24" y="24" width="464" height="464" fill="#F7F6F3" stroke="#111111" stroke-width="32"/>
+    <path d="M128 128h256M256 128v256M256 256h128M384 256v128" stroke="#111111" stroke-width="40" fill="none" stroke-linecap="square" stroke-linejoin="miter"/>
   </svg>`;
 
   // Create 192x192
