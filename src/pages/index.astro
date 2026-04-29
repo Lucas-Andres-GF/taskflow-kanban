@@ -3,70 +3,65 @@ import Layout from '../layouts/Layout.astro';
 import KanbanBoard from '../components/KanbanBoard.jsx';
 ---
 
-<Layout title="TaskFlow - Kanban Board">
-  <div class="space-y-6">
-    <!-- Page Title -->
-    <div class="flex items-center justify-between">
-      <div>
-        <h2 class="text-xl text-gray-300">Tablero Kanban</h2>
-        <p id="taskCount" class="text-sm text-gray-500 mt-1">Cargando...</p>
-      </div>
-      
-      <!-- Refresh button -->
-      <button
-        id="refreshBtn"
-        class="flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-600 hover:bg-gray-700 transition-colors text-gray-400 hover:text-white"
-      >
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-        </svg>
-        Actualizar
-      </button>
-    </div>
-
-    <!-- Kanban Board (React Island) -->
-    <KanbanBoard client:load />
-  </div>
+<Layout title="TaskFlow - Personal OS">
+  <KanbanBoard client:load />
 
   <script>
-    // Listen for task count updates from React component
     window.addEventListener('taskCountUpdate', (e) => {
       const countEl = document.getElementById('taskCount');
-      if (countEl) countEl.textContent = e.detail + ' tareas totales';
+      if (countEl) countEl.textContent = `${e.detail} tareas`;
     });
-    
-    // Refresh button - reload page
+
     document.getElementById('refreshBtn')?.addEventListener('click', () => {
       window.location.reload();
     });
-    
-    // Modal handling
+
     const modal = document.getElementById('addTaskModal');
     const addBtn = document.getElementById('addTaskBtn');
     const cancelBtn = document.getElementById('cancelAddTask');
-    const form = document.getElementById('addTaskForm');
+    const cancelSecondaryBtn = document.getElementById('cancelAddTaskSecondary');
+    const form = document.getElementById('addTaskForm') as HTMLFormElement | null;
+    const titleInput = document.getElementById('taskTitleInput') as HTMLInputElement | null;
 
-    // Show modal
-    addBtn?.addEventListener('click', () => {
-      modal?.classList.remove('hidden');
-    });
-
-    // Hide modal
-    cancelBtn?.addEventListener('click', () => {
+    const closeModal = () => {
       modal?.classList.add('hidden');
-    });
+      addBtn?.focus();
+    };
+    const openModal = () => {
+      modal?.classList.remove('hidden');
+      modal?.classList.add('flex');
+      requestAnimationFrame(() => titleInput?.focus());
+    };
 
-    // Close modal on backdrop click
-    modal?.addEventListener('click', (e) => {
-      if (e.target === modal) {
-        modal.classList.add('hidden');
+    addBtn?.addEventListener('click', openModal);
+
+    window.addEventListener('keydown', (e) => {
+      const target = e.target as HTMLElement | null;
+      const isTyping = target?.matches('input, textarea, select, [contenteditable="true"]');
+
+      if (e.key === 'Escape' && !modal?.classList.contains('hidden')) {
+        e.preventDefault();
+        closeModal();
+        return;
+      }
+
+      if (isTyping) return;
+      if (e.ctrlKey && e.altKey && e.key.toLowerCase() === 'n') {
+        e.preventDefault();
+        openModal();
       }
     });
 
-    // Handle form submission
+    cancelBtn?.addEventListener('click', closeModal);
+    cancelSecondaryBtn?.addEventListener('click', closeModal);
+
+    modal?.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+
     form?.addEventListener('submit', async (e) => {
       e.preventDefault();
-      
+
       const formData = new FormData(form);
       const taskData = {
         title: formData.get('title'),
@@ -77,8 +72,8 @@ import KanbanBoard from '../components/KanbanBoard.jsx';
       };
 
       try {
-        const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL || 'https://kewviiaciikgmrpjbxbz.supabase.co';
-        const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY || 'sb_publishable_k4JE7WJIYsQyU7LJl_Li7Q_npyeaKcW';
+        const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL || 'https://your-project.supabase.co';
+        const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY || 'your-anon-key';
         const { createClient } = await import('@supabase/supabase-js');
         const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
@@ -90,15 +85,13 @@ import KanbanBoard from '../components/KanbanBoard.jsx';
 
         if (error) throw error;
 
-        // Close modal and reset form
-        modal?.classList.add('hidden');
+        closeModal();
         form.reset();
-
-        // Reload to refresh
-        window.location.reload();
+        window.dispatchEvent(new CustomEvent('taskCreated', { detail: data }));
       } catch (err) {
+        const message = err instanceof Error ? err.message : 'No se pudo crear la tarea';
         console.error('Error creating task:', err);
-        alert('Error al crear la tarea: ' + err.message);
+        window.dispatchEvent(new CustomEvent('taskCreateError', { detail: message }));
       }
     });
   </script>

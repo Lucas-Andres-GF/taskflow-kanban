@@ -5,20 +5,34 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Custom dark mode palette
-        dark: {
-          bg: '#111827',      // Main background
-          card: '#1F2937',    // Card background
-          border: '#374151',  // Border color
+        paper: {
+          DEFAULT: '#F7F6F3',
+          soft: '#FBFBFA',
+          card: '#FFFFFF',
+          muted: '#F9F9F8',
         },
-        mint: {
-          DEFAULT: '#10B981',  // Mint accent
-          light: '#34D399',     // Lighter mint
-          dark: '#059669',      // Darker mint
-        }
+        ink: {
+          DEFAULT: '#111111',
+          soft: '#3F3D39',
+          muted: '#76736D',
+          faint: '#A8A39B',
+        },
+        line: '#EAEAEA',
+        pastel: {
+          red: '#FDEBEC',
+          redText: '#9F2F2D',
+          blue: '#E1F3FE',
+          blueText: '#245A78',
+          green: '#EDF3EC',
+          greenText: '#3E6544',
+          yellow: '#FBF3DB',
+          yellowText: '#7A5B1E',
+        },
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['SF Pro Display', 'Geist Sans', 'Helvetica Neue', 'Arial', 'sans-serif'],
+        serif: ['Newsreader', 'Lyon Text', 'Georgia', 'serif'],
+        mono: ['Geist Mono', 'JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'monospace'],
       },
     },
   },

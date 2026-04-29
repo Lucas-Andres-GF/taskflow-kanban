@@ -5,7 +5,7 @@ interface Props {
   title?: string;
 }
 
-const { title = 'Kanban Board' } = Astro.props;
+const { title = 'TaskFlow' } = Astro.props;
 ---
 
 <!DOCTYPE html>
@@ -13,108 +13,109 @@ const { title = 'Kanban Board' } = Astro.props;
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Kanban Task Manager" />
-    <meta name="theme-color" content="#10B981" />
+    <meta name="description" content="TaskFlow, tablero personal para organizar tareas" />
+    <meta name="theme-color" content="#F7F6F3" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="TaskFlow" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="shortcut icon" href="/favicon.svg" />
     <link rel="manifest" href="/manifest.json" />
     <link rel="apple-touch-icon" href="/icon-192.png" />
     <title>{title}</title>
-    <!-- Google Fonts: Inter -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   </head>
-  <body class="min-h-screen bg-gray-900 overflow-x-hidden">
-    <header class="bg-gray-800 border-b border-gray-700 sticky top-0 z-10">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <div class="flex items-center justify-between">
-          <h1 class="text-2xl font-bold text-white flex items-center gap-3">
-            <span class="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center">
-              <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-              </svg>
-            </span>
-            TaskFlow
-          </h1>
-          <div class="flex items-center gap-4">
-            <button
-              id="addTaskBtn"
-              class="bg-emerald-500 hover:bg-emerald-600 text-white font-medium px-4 py-2 rounded-lg transition-colors duration-200 flex items-center gap-2"
-            >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-              </svg>
-              Nueva Tarea
-            </button>
+  <body class="min-h-screen overflow-x-hidden">
+    <header class="sticky top-0 z-20 border-b border-line bg-paper/90 backdrop-blur-md">
+      <div class="mx-auto flex max-w-[1500px] items-center justify-between gap-3 px-4 py-3 sm:px-8 sm:py-4 lg:px-10">
+        <a href="/" class="flex items-center gap-3 text-ink" aria-label="TaskFlow inicio">
+          <span class="grid h-8 w-8 place-items-center border border-ink bg-paper-card sm:h-9 sm:w-9">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="square" stroke-linejoin="miter" stroke-width="1.8" d="M7 7h10M7 12h10M7 17h6" />
+            </svg>
+          </span>
+          <span>
+            <span class="block text-xs font-semibold uppercase tracking-[0.22em] sm:text-sm sm:tracking-[0.24em]">TaskFlow</span>
+            <span class="hidden text-xs text-ink-muted sm:block">Orden diario sin ruido visual</span>
+          </span>
+        </a>
+
+        <div class="flex items-center gap-2 sm:gap-3">
+          <div class="hidden border border-line bg-paper-card px-3 py-2 text-right sm:block">
+            <p class="font-mono text-[9px] uppercase tracking-[0.2em] text-ink-muted">Estado</p>
+            <p id="taskCount" class="font-serif text-xl leading-none tracking-tight text-ink">Cargando</p>
           </div>
+
+          <button id="refreshBtn" type="button" class="hidden border border-line bg-paper-card px-3 py-2 text-sm text-ink-muted transition-colors hover:bg-paper-muted hover:text-ink md:block">
+            Actualizar
+          </button>
+
+          <button id="addTaskBtn" class="btn-primary flex items-center gap-2 px-3 sm:px-4" type="button" title="Nueva tarea (Ctrl+Alt+N)" aria-label="Nueva tarea">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="square" stroke-linejoin="miter" stroke-width="1.8" d="M12 5v14M5 12h14" />
+            </svg>
+            <span class="hidden sm:inline">Nueva tarea</span>
+          </button>
         </div>
       </div>
     </header>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <main class="mx-auto max-w-[1500px] px-4 py-6 sm:px-8 sm:py-10 lg:px-10 lg:py-14">
       <slot />
     </main>
 
-    <!-- Add Task Modal (hidden by default) -->
-    <div id="addTaskModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div class="bg-gray-800 rounded-xl p-6 w-full max-w-md border border-gray-700 shadow-2xl">
-        <h2 class="text-xl font-semibold mb-4">Nueva Tarea</h2>
-        <form id="addTaskForm" class="space-y-4">
+    <div id="addTaskModal" class="hidden fixed inset-0 z-50 items-center justify-center overflow-y-auto bg-ink/20 p-4 backdrop-blur-sm sm:p-5">
+      <div class="max-h-[calc(100vh-2rem)] w-full max-w-lg overflow-y-auto border border-line bg-paper-card p-5 sm:p-8">
+        <div class="mb-8 flex items-start justify-between gap-6 border-b border-line pb-6">
           <div>
-            <label class="block text-sm font-medium mb-1">Título</label>
+            <p class="mb-2 font-mono text-xs uppercase tracking-[0.24em] text-ink-muted">Nueva entrada</p>
+            <h2 class="font-serif text-3xl leading-none tracking-tight text-ink">Crear tarea</h2>
+          </div>
+          <button id="cancelAddTask" type="button" class="border border-line px-3 py-2 text-sm text-ink-muted transition-colors hover:bg-paper-muted hover:text-ink">
+            Cerrar
+          </button>
+        </div>
+
+        <form id="addTaskForm" class="space-y-5">
+          <div>
+            <label class="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-ink-muted">Titulo</label>
             <input
               type="text"
               name="title"
+              id="taskTitleInput"
               required
-              class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 focus:outline-none focus:border-emerald-500"
-              placeholder="Título de la tarea"
+              class="field"
+              placeholder="Ej. Revisar tareas de la semana"
             />
           </div>
+
           <div>
-            <label class="block text-sm font-medium mb-1">Descripción</label>
+            <label class="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-ink-muted">Descripcion</label>
             <textarea
               name="description"
-              rows="3"
-              class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 focus:outline-none focus:border-emerald-500"
-              placeholder="Descripción opcional"
+              rows="4"
+              class="field resize-none"
+              placeholder="Notas concretas para cuando vuelvas a esta tarea"
             ></textarea>
           </div>
-          <div class="grid grid-cols-2 gap-4">
+
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <label class="block text-sm font-medium mb-1">Prioridad</label>
-              <select
-                name="priority"
-                class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 focus:outline-none focus:border-emerald-500"
-              >
+              <label class="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-ink-muted">Prioridad</label>
+              <select name="priority" class="field">
                 <option value="low">Baja</option>
                 <option value="medium" selected>Media</option>
                 <option value="high">Alta</option>
               </select>
             </div>
             <div>
-              <label class="block text-sm font-medium mb-1">Fecha límite</label>
-              <input
-                type="date"
-                name="due_date"
-                class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 focus:outline-none focus:border-emerald-500"
-              />
+              <label class="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-ink-muted">Fecha limite</label>
+              <input type="date" name="due_date" class="field" />
             </div>
           </div>
-          <div class="flex justify-end gap-3 pt-4">
-            <button
-              type="button"
-              id="cancelAddTask"
-              class="px-4 py-2 rounded-lg border border-gray-600 hover:bg-gray-700 transition-colors"
-            >
-              Cancelar
-            </button>
-            <button type="submit" class="bg-emerald-500 hover:bg-emerald-600 text-white font-medium px-4 py-2 rounded-lg transition-colors duration-200">
-              Crear Tarea
-            </button>
+
+          <div class="flex justify-end gap-3 border-t border-line pt-5">
+            <button type="button" id="cancelAddTaskSecondary" class="btn-secondary">Cancelar</button>
+            <button type="submit" class="btn-primary">Crear tarea</button>
           </div>
         </form>
       </div>

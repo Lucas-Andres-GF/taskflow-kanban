@@ -4,72 +4,128 @@
 
 @layer base {
   html {
-    @apply bg-gray-900 text-gray-100 font-sans antialiased;
+    @apply font-sans antialiased;
+    background-color: #F7F6F3;
+    color: #111111;
     overflow-x: hidden;
   }
   
   body {
-    @apply bg-gray-900 text-gray-100 font-sans antialiased;
+    @apply font-sans antialiased;
+    background-color: #F7F6F3;
+    color: #111111;
     overflow-x: hidden;
     max-width: 100vw;
+    line-height: 1.6;
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(17, 17, 17, 0.035) 1px, transparent 0);
+    background-size: 18px 18px;
   }
-  
-  /* Ensure no horizontal overflow */
+
   * {
     max-width: 100vw;
     box-sizing: border-box;
   }
-  
-  /* Enable momentum scrolling on iOS */
+
   .overflow-x-auto {
     -webkit-overflow-scrolling: touch;
   }
-  
-  /* Prevent text selection on touch */
+
   * {
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
   }
-  
-  /* Allow text selection on inputs */
-  input, textarea {
+
+  input, textarea, [contenteditable='true'] {
     -webkit-user-select: text;
     -moz-user-select: text;
     -ms-user-select: text;
     user-select: text;
   }
+
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
 }
 
 @layer components {
-  /* Custom card styles */
-  .kanban-card {
-    @apply bg-gray-800 rounded-xl p-4 border border-gray-700 
-           shadow-lg hover:shadow-xl transition-all duration-200;
+  .editorial-shell {
+    border: 1px solid #EAEAEA;
+    background-color: #FFFFFF;
   }
 
-  /* Priority badges */
+  .kanban-card {
+    @apply p-4 transition-all duration-200;
+    border: 1px solid #EAEAEA;
+    background-color: #FFFFFF;
+    box-shadow: 0 18px 60px rgba(17, 17, 17, 0.03);
+  }
+
+  .kanban-card:hover {
+    background-color: #FBFBFA;
+    transform: translateY(-1px);
+  }
+
+  .badge {
+    @apply inline-flex items-center px-2 py-1 text-[11px] font-medium uppercase tracking-[0.18em];
+    border: 1px solid #EAEAEA;
+  }
+
   .priority-low {
-    @apply bg-emerald-500/20 text-emerald-400 border border-emerald-500/30;
+    background-color: #EDF3EC;
+    color: #3E6544;
   }
 
   .priority-medium {
-    @apply bg-yellow-500/20 text-yellow-400 border border-yellow-500/30;
+    background-color: #FBF3DB;
+    color: #7A5B1E;
   }
 
   .priority-high {
-    @apply bg-red-500/20 text-red-400 border border-red-500/30;
+    background-color: #FDEBEC;
+    color: #9F2F2D;
   }
 
-  /* Column header styles */
   .column-header {
-    @apply font-semibold text-lg mb-4 pb-2 border-b-2 border-gray-700;
+    @apply pb-4 text-xs font-semibold uppercase tracking-[0.22em];
+    border-bottom: 1px solid #EAEAEA;
+    color: #76736D;
   }
 
-  /* Button styles */
-  .btn-mint {
-    @apply bg-emerald-500 hover:bg-emerald-600 text-white font-medium px-4 py-2 
-           rounded-lg transition-colors duration-200;
+  .btn-primary {
+    @apply px-4 py-2 text-sm font-medium text-white transition-transform duration-200;
+    background-color: #111111;
+  }
+
+  .btn-primary:hover {
+    transform: scale(0.98);
+  }
+
+  .btn-secondary {
+    @apply px-4 py-2 text-sm font-medium transition-colors duration-200;
+    border: 1px solid #EAEAEA;
+    background-color: #FFFFFF;
+    color: #3F3D39;
+  }
+
+  .btn-secondary:hover {
+    background-color: #F9F9F8;
+    color: #111111;
+  }
+
+  .field {
+    @apply w-full px-3 py-2 text-sm outline-none transition-colors duration-200;
+    border: 1px solid #EAEAEA;
+    background-color: #FFFFFF;
+    color: #111111;
+  }
+
+  .field:focus {
+    border-color: #111111;
   }
 }

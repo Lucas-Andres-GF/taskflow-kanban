@@ -9,8 +9,15 @@ CREATE TABLE IF NOT EXISTS tasks (
     status TEXT NOT NULL DEFAULT 'todo' CHECK (status IN ('todo', 'in_progress', 'done')),
     priority TEXT NOT NULL DEFAULT 'low' CHECK (priority IN ('low', 'medium', 'high')),
     due_date DATE,
+    position INTEGER NOT NULL DEFAULT 0,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+-- Existing projects: add manual ordering support if the table already exists
+ALTER TABLE tasks ADD COLUMN IF NOT EXISTS position INTEGER NOT NULL DEFAULT 0;
+
+-- Keep per-column ordering queries cheap as the board grows
+CREATE INDEX IF NOT EXISTS tasks_status_position_idx ON tasks (status, position);
 
 -- Enable Row Level Security
 ALTER TABLE tasks ENABLE ROW RLS;
@@ -51,9 +58,9 @@ CREATE POLICY "Enable update for anonymous users" ON tasks
     USING (true);
 
 -- Add some sample data for testing
-INSERT INTO tasks (title, description, status, priority, due_date) VALUES
-    ('Diseño de UI', 'Crear mockups para la nueva feature', 'todo', 'high', CURRENT_DATE + INTERVAL '3 days'),
-    ('Implementar API', 'Desarrollar endpoints de autenticación', 'in_progress', 'high', CURRENT_DATE + INTERVAL '1 day'),
-    ('Revisión de código', 'Code review del PR #42', 'todo', 'medium', CURRENT_DATE + INTERVAL '5 days'),
-    ('Tests unitarios', 'Escribir tests para el módulo de usuarios', 'done', 'low', CURRENT_DATE - INTERVAL '2 days'),
-    ('Documentación', 'Actualizar README con nuevas instrucciones', 'todo', 'low', CURRENT_DATE + INTERVAL '7 days');
+INSERT INTO tasks (title, description, status, priority, due_date, position) VALUES
+    ('Diseño de UI', 'Crear mockups para la nueva feature', 'todo', 'high', CURRENT_DATE + INTERVAL '3 days', 0),
+    ('Implementar API', 'Desarrollar endpoints de autenticación', 'in_progress', 'high', CURRENT_DATE + INTERVAL '1 day', 0),
+    ('Revisión de código', 'Code review del PR #42', 'todo', 'medium', CURRENT_DATE + INTERVAL '5 days', 1),
+    ('Tests unitarios', 'Escribir tests para el módulo de usuarios', 'done', 'low', CURRENT_DATE - INTERVAL '2 days', 0),
+    ('Documentación', 'Actualizar README con nuevas instrucciones', 'todo', 'low', CURRENT_DATE + INTERVAL '7 days', 2);
